@@ -1,5 +1,5 @@
 const std = @import("std");
-const sdl = @import("sdl2");
+const SDL = @import("sdl2_native");
 const vk = @import("vk.zig");
 
 const BaseDispatch = vk.BaseWrapper(.{
@@ -8,26 +8,36 @@ const BaseDispatch = vk.BaseWrapper(.{
 
 const InstanceDispatch = vk.InstanceWrapper(.{ .destroy_instance = true });
 
+const Renderer = struct { vkb: BaseDispatch = undefined, vki: InstanceDispatch = undefined };
+
 pub fn main() !void {
-    try sdl.init(.{
-        .video = true,
-        .events = true,
-    });
-    defer sdl.quit();
-    var window = try sdl.createWindow("Test window", .{ .centered = {} }, .{ .centered = {} }, 800, 600, .{ .vis = .shown, .context = .vulkan });
-    defer window.destroy();
+    if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_EVENTS) < 0) {
+        sdlPanic();
+    }
+    defer SDL.SDL_Quit();
+    var window = SDL.SDL_CreateWindow("Sapfire Renderer", SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED, 800, 600, SDL.SDL_WINDOW_SHOWN | SDL.SDL_WINDOW_VULKAN) orelse sdlPanic();
+    // var extension_count: u32 = 0;
+    // SDL.SDL_Vulkan_GetInstanceExtensions(window, &extension_count, null);
+    defer _ = SDL.SDL_DestroyWindow(window);
+    // const vk_proc = @ptrCast(fn(instance: vk.Instance, procname: [*:0]const u8) callconv(.C) vk.PfnVoidFunction, sdl.)
     mainLoop: while (true) {
-        while (sdl.pollEvent()) |ev| {
-            switch (ev) {
-                .quit => break :mainLoop,
-                .key_down => |key| {
-                    switch (key.scancode) {
-                        .escape => break :mainLoop,
-                        else => std.log.info("key pressed: {}\n", .{key.scancode}),
+        var event: SDL.SDL_Event = undefined;
+        while (SDL.SDL_PollEvent(&event) != 0) {
+            switch (event.type) {
+                SDL.SDL_QUIT => break :mainLoop,
+                SDL.SDL_KEYDOWN => {
+                    switch (event.key.keysym.scancode) {
+                        SDL.SDL_SCANCODE_ESCAPE => break :mainLoop,
+                        else => std.log.info("key pressed: {}\n", .{event.key.keysym.scancode}),
                     }
                 },
                 else => {},
             }
         }
     }
+}
+
+fn sdlPanic() noreturn {
+    const str = @as(?[*:0]const u8, SDL.SDL_GetError()) orelse "Unknown Error";
+    @panic(std.mem.sliceTo(str, 0));
 }

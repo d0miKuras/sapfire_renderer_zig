@@ -31,7 +31,7 @@ pub fn build(b: *std.Build) void {
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).
-    exe.addModule("sdl2", sdl.getWrapperModule());
+    exe.addModule("sdl2_native", sdl.getNativeModule());
 
     b.installArtifact(exe);
 
