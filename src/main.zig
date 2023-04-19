@@ -16,11 +16,15 @@ pub fn main() !void {
         sdlPanic();
     }
     defer SDL.SDL_Quit();
-    _ = SDL.SDL_Vulkan_LoadLibrary("");
     var window = SDL.SDL_CreateWindow("Sapfire Renderer", SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED, 800, 600, SDL.SDL_WINDOW_SHOWN | SDL.SDL_WINDOW_VULKAN) orelse sdlPanic();
-    // var extension_count: u32 = 0;
-    // SDL.SDL_Vulkan_GetInstanceExtensions(window, &extension_count, null);
     defer _ = SDL.SDL_DestroyWindow(window);
+    var extensionCount: u32 = undefined;
+    if (SDL.SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, null) < 0) sdlPanic();
+    std.debug.print("Extension count: {}", .{extensionCount});
+    var extensionNames: ?[*][*:0]const u8 = undefined;
+    // var extensionNames: [*c]const u8 = undefined;
+    _ = extensionNames;
+    // if (SDL.SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, extensionNames) < 0) sdlPanic();
     // const vk_proc = @ptrCast(fn(instance: vk.Instance, procname: [*:0]const u8) callconv(.C) vk.PfnVoidFunction, sdl.)
     mainLoop: while (true) {
         var event: SDL.SDL_Event = undefined;
