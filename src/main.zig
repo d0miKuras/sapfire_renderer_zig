@@ -1,6 +1,6 @@
 const std = @import("std");
 const sdl = @import("sdl2");
-const vk = @import("vulkan");
+const vk = @import("vk.zig");
 
 const BaseDispatch = vk.BaseWrapper(.{
     .createInstance = true,

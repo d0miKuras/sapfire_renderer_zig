@@ -1,6 +1,5 @@
 const std = @import("std");
 const SDL = @import("libs/SDL.zig/Sdk.zig");
-const vkgen = @import("libs/vulkan-zig/generator/index.zig");
 
 // Although this function looks imperative, note that its job is to
 // declaratively construct a build graph that will be executed by an external
@@ -18,7 +17,6 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const sdl = SDL.init(b, null);
-    const gen = vkgen.VkGenerateStep.create(b, "libs/vulkan-zig/examples/vk.xml");
     const exe = b.addExecutable(.{
         .name = "sapfire_renderer_zig",
         // In this case the main source file is merely a path, however, in more
@@ -28,14 +26,12 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-
     sdl.link(exe, .dynamic);
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).
     exe.addModule("sdl2", sdl.getWrapperModule());
-    exe.addModule("vulkan", gen.getModule());
 
     b.installArtifact(exe);
 
