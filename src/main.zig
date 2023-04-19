@@ -1,5 +1,6 @@
 const std = @import("std");
-const SDL = @import("sdl2_native");
+const SDL = @import("sdl2_vulkan");
+// const SDL_VK = @import("sdl2_vulkan");
 const vk = @import("vk.zig");
 
 const BaseDispatch = vk.BaseWrapper(.{
@@ -15,6 +16,7 @@ pub fn main() !void {
         sdlPanic();
     }
     defer SDL.SDL_Quit();
+    _ = SDL.SDL_Vulkan_LoadLibrary("");
     var window = SDL.SDL_CreateWindow("Sapfire Renderer", SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED, 800, 600, SDL.SDL_WINDOW_SHOWN | SDL.SDL_WINDOW_VULKAN) orelse sdlPanic();
     // var extension_count: u32 = 0;
     // SDL.SDL_Vulkan_GetInstanceExtensions(window, &extension_count, null);
